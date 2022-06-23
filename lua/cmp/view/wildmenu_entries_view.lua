@@ -133,6 +133,7 @@ wildmenu_entries_view.open = function(self, offset, entries)
     height = 1,
     zindex = 1001,
   })
+  vim.api.nvim_win_set_option(self.entries_win.win, 'winhighlight', 'Normal:NormalFloat,FloatBorder:CmpDocumentationBorder,Search:None')
   self:draw()
 
   if preselect > 0 and config.get().preselect == types.cmp.PreselectMode.Item then

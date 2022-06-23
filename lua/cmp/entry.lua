@@ -192,6 +192,12 @@ end
 ---@param entries_buf number The buffer this entry will be rendered into.
 ---@return { abbr: { text: string, bytes: number, width: number, hl_group: string }, kind: { text: string, bytes: number, width: number, hl_group: string }, menu: { text: string, bytes: number, width: number, hl_group: string } }
 entry.get_view = function(self, suggest_offset, entries_buf)
+  local custom_fields = {}
+  for _, field in ipairs(config.get().formatting.fields) do
+    if not vim.tbl_contains({ 'abbr', 'kind', 'menu' }, field) then
+      table.insert(custom_fields, field)
+    end
+  end
   local item = self:get_vim_item(suggest_offset)
   return self.cache:ensure({ 'get_view', self.resolved_completion_item and 1 or 0, entries_buf }, function()
     local view = {}
@@ -199,6 +205,13 @@ entry.get_view = function(self, suggest_offset, entries_buf)
     -- called in because it reads the values of the option 'tabstop' when
     -- rendering <Tab> characters.
     vim.api.nvim_buf_call(entries_buf, function()
+      for _, field in ipairs(custom_fields) do
+        view[field] = {}
+        view[field].text = item[field] or ''
+        view[field].bytes = #view[field].text
+        view[field].width = vim.fn.strdisplaywidth(view[field].text)
+        view[field].hl_group = item[field .. '_hl_group'] or (self:is_deprecated() and 'CmpItemAbbrDeprecated' or 'CmpItemAbbr')
+      end
       view.abbr = {}
       view.abbr.text = item.abbr or ''
       view.abbr.bytes = #view.abbr.text
@@ -283,6 +296,16 @@ entry.get_vim_item = function(self, suggest_offset)
     vim_item.abbr = str.oneline(vim_item.abbr or '')
     vim_item.kind = str.oneline(vim_item.kind or '')
     vim_item.menu = str.oneline(vim_item.menu or '')
+    local custom_fields = {}
+    for _, field in ipairs(config.get().formatting.fields) do
+      if not vim.tbl_contains({ 'abbr', 'kind', 'menu' }, field) then
+        table.insert(custom_fields, field)
+      end
+    end
+
+    for _, field in ipairs(custom_fields) do
+      vim_item[field] = str.oneline(vim_item[field] or '')
+    end
     vim_item.equal = 1
     vim_item.empty = 1
 

@@ -85,6 +85,9 @@ return function()
       completion = {
         border = { '', '', '', '', '', '', '', '' },
         winhighlight = 'Normal:Pmenu,FloatBorder:Pmenu,CursorLine:PmenuSel,Search:None',
+        left_side_padding = 1,
+        right_side_padding = 1,
+        col_offset = 0,
       },
       documentation = {
         max_height = math.floor(WIDE_HEIGHT * (WIDE_HEIGHT / vim.o.lines)),
